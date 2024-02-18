@@ -52,6 +52,9 @@ namespace GLS_MinFastService.Models
 
         }
 
+        /// <summary>
+        /// Lấy tất cả KeyCenter, Kí hiệu của các chi nhánh, lệch tiền cho phép, call gateway lấy doanh thu
+        /// </summary>
         public async Task Start()
         {
 
@@ -90,7 +93,7 @@ namespace GLS_MinFastService.Models
             {
                 try
                 {
-                    this.DataMentor = await GetRevenueFromMentor(-1);
+                    this.DataMentor = await GetRevenueFromMentor();
                     break;
                 }
                 catch (Exception ex)

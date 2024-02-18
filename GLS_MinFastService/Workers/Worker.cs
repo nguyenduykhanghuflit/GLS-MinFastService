@@ -16,6 +16,7 @@ namespace GLS_MinFastService.Workers
         private readonly ILogger<Worker> _logger;
         private readonly SqlHelper _sqlHelpers;
         private IConfiguration _configuration;
+
         private readonly int t = -1; //lùi mấy ngày
         public Worker(ILogger<Worker> logger, SqlHelper sqlHelpers, IConfiguration configuration)
         {
@@ -51,8 +52,6 @@ namespace GLS_MinFastService.Workers
                 _logger.LogInformation($"_______________________________________________________________________________________________________________");
                 #endregion
 
-                Console.WriteLine(now.Hour);
-                Console.WriteLine(timeRunService);
                 if (now.Hour == timeRunService)
                 {
                     #region Log thời gian kiểm tra dữ liệu
@@ -237,7 +236,7 @@ namespace GLS_MinFastService.Workers
                     }
                 }
 
-                // InsertXMLDataMinToDB(xmlRequest.ToString());
+                InsertXMLDataMinToDB(xmlRequest.ToString());
 
                 await SendData(initRunService!.TotalSuccess, initRunService.TotalFailure, initRunService!.ListBranchFailure!, initRunService!.ListBranchSuccess!);
 
@@ -260,7 +259,7 @@ namespace GLS_MinFastService.Workers
 
                 if (now.Hour > timeRunService)
                 {
-                    _logger.LogInformation("Bắt đầu kiểm tra lại: " + now.AddDays(-1).ToString());
+                    _logger.LogInformation("Bắt đầu kiểm tra lại: " + now.AddDays(t).ToString());
                     var dataMinv = GetDataMin();
 
                     if (dataMinv.Count > 0)
@@ -287,7 +286,7 @@ namespace GLS_MinFastService.Workers
 
                             var param = new
                             {
-                                date = now.AddDays(-9),
+                                date = now.AddDays(t),
                                 branchId = item.BranchId,
                                 callFrom = "SERVICE",
                                 saveActionLog = 0,
@@ -339,7 +338,7 @@ namespace GLS_MinFastService.Workers
             {
                 Hashtable hashtable = new Hashtable
                 {
-                    { "@Date", DateTime.Now.AddDays(-1) }
+                    { "@Date", DateTime.Now.AddDays(t) }
                 };
                 Config config = new Config(_configuration);
                 string? connectionString = config.Connection_KAT_GOLDEN_BI();
@@ -460,7 +459,7 @@ namespace GLS_MinFastService.Workers
             }
             catch (Exception ex)
             {
-                string dateString2 = DateTime.Now.AddDays(-2).ToString("dd/MM/yyyy", CultureInfo.InvariantCulture);
+                string dateString2 = DateTime.Now.AddDays(t - 1).ToString("dd/MM/yyyy", CultureInfo.InvariantCulture);
                 checkEod2 = 0;
                 msgCheckEod2 = $"Kiểm tra EOD ngày {dateString2} gặp lỗi";
                 msgLotus =
@@ -492,7 +491,7 @@ namespace GLS_MinFastService.Workers
                     var signOfBranch = initRunService?.SignOfBranch[item.BranchId]?.SERIAL78;
                     if (signOfBranch != null && initRunService?.ListSignEodFail?.Find(i => i == signOfBranch) != null)
                     {
-                        string date = DateTime.Now.AddDays(-2).ToString();
+                        string date = DateTime.Now.AddDays(t - 1).ToString();
                         finalStatus = 0;
                         msgCheckEod = $"Tồn tại phiếu chưa chạy EOD ngày {date}. Kí hiệu {signOfBranch}";
 
@@ -508,7 +507,7 @@ namespace GLS_MinFastService.Workers
             }
             catch (Exception ex)
             {
-                string dateString1 = DateTime.Now.AddDays(-1).ToString("dd/MM/yyyy", CultureInfo.InvariantCulture);
+                string dateString1 = DateTime.Now.AddDays(t).ToString("dd/MM/yyyy", CultureInfo.InvariantCulture);
                 checkEod = 0;
                 msgCheckEod = $"Kiểm tra EOD ngày {dateString1} gặp lỗi";
                 msgLotus =
